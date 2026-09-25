@@ -4,22 +4,43 @@ Guidance for Claude Code in this repository.
 
 ## What this is
 
-A **Claude Code template** — a starting point for new projects, not an application. It holds only configuration and licensing files; application code gets added alongside them.
+**folder2md**: a static web app (PWA) that packs a folder or a zip into one Markdown file and unpacks such a file back into a zip. No server, build step, framework, npm or libraries: classic `<script src>` files that run from `file://`, from `python3 -m http.server` and from GitHub Pages. `BRIEF.md` is the original specification and its non-goals still apply; `README.md` documents usage, hosting and the file format.
 
 ## Layout
 
+- `index.html`, `style.css` — the shell. Theme is CSS variables on `:root[data-theme]`, default from `prefers-color-scheme`, persisted in `localStorage("theme")`.
+- `app.js` — DOM only: drop zone, pickers, checkboxes, ignore dialog, theme, downloads, service-worker registration.
+- `core.js` — pure functions, no DOM, exposed as `self.folder2md` (`buildMd`, `parseMd`, `zipRead`, `zipWrite`, `sniff`, `isIgnored`, `partition`, `treeText`, `detect`, ...). Also loaded by `sw.js` via `importScripts`, so it must not touch `window` or `document`. **`VERSION` lives here and nowhere else**: it feeds the magic line, the H1, the UI and the cache name.
+- `ignores.js` — the always-skipped list as one template literal, gitignore syntax, matched against every path component. Edit it directly; `core.js` parses it at load and `tests/ref_parse.py` reads it too.
+- `manifest.webmanifest`, `sw.js`, `icons/` — PWA. `sw.js` precaches the shell, cache-first, cache name `folder2md-<VERSION>`; nothing else. `.nojekyll` keeps GitHub Pages from running Jekyll.
+- `tests/test_e2e.py` — Playwright (Python) harness; `tests/ref_parse.py` — independent reference parser and ignore matcher; `tests/fixtures/` — every `*.zip` and every directory is a fixture (`junk.zip` holds the ignorable junk that cannot live in git as plain files); `tests/gen_fixtures.py`, `tests/gen_icons.py` — one-off generators.
+- `pyproject.toml`, `uv.lock` — test harness only; the app has no dependencies.
 - `.claude/settings.json` — committed settings (`model: opus`, `effortLevel: xhigh`), permission allowlist, and a `SessionStart` hook that prints `PROGRESS.md` into context. Personal overrides go in the gitignored `.claude/settings.local.json`, never here.
 - `.claude/commands/wrapup.md` — `/wrapup`: writes a session handoff to `PROGRESS.md`, then commits.
 - `PROGRESS.md` — session handoff maintained by `/wrapup`.
 - `.gitignore`, `.gitattributes` — ignore rules; LF line endings and binary file types.
-- `README.md`, `LICENSE` — human-facing overview and license.
+- `LICENSE` — AGPL-3.0.
+
+## Commands
+
+```bash
+python3 -m http.server 8000                       # serve the app at http://localhost:8000/
+uv sync                                           # create the test venv
+uv run playwright install --with-deps chromium    # once per machine
+uv run pytest -q                                  # end-to-end tests, headless Chromium
+uv run python tests/gen_fixtures.py               # regenerate tests/fixtures/
+uv run python tests/gen_icons.py                  # regenerate icons/
+```
 
 ## Conventions
 
+- Keep `core.js` free of DOM access; keep `app.js` free of format logic.
+- A change to the document format is mirrored in `core.js`, `tests/ref_parse.py` and the README's format section. No golden-file tests of the Markdown: it is checked only through what the two parsers get back.
+- All URLs relative (`./`), never absolute, so the same files work at `file://`, `localhost` and `https://<user>.github.io/<repo>/`.
+- The non-goals in `BRIEF.md` stay non-goals: no bundler, zip library, web workers, deflate on output, ZIP64, exclude UI beyond the one checkbox and the read-only dialog, size guards, progress bars, or multi-item drops.
 - LF line endings everywhere; never introduce CRLF.
 - New languages or toolchains extend `.gitignore` and `.gitattributes` — no parallel ignore files. Keep new entries consistent with existing ones.
 - Respect the [LICENSE](LICENSE) when adding dependencies.
-- As the template becomes a real project, add build, test, and run commands here.
 
 ## Development environment
 

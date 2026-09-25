@@ -1,0 +1,115 @@
+:root {
+  --bg: #f6f7f9;
+  --fg: #1f2328;
+  --muted: #59636e;
+  --accent: #0969da;
+  --border: #d0d7de;
+  --panel: #ffffff;
+  --error: #cf222e;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0d1117;
+    --fg: #e6edf3;
+    --muted: #9198a1;
+    --accent: #58a6ff;
+    --border: #3d444d;
+    --panel: #161b22;
+    --error: #ff7b72;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0d1117;
+  --fg: #e6edf3;
+  --muted: #9198a1;
+  --accent: #58a6ff;
+  --border: #3d444d;
+  --panel: #161b22;
+  --error: #ff7b72;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+}
+
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+}
+h1 { margin: 0; font-size: 1.25rem; }
+h1 small { margin-left: .5em; font-size: .8rem; font-weight: normal; color: var(--muted); }
+
+main { max-width: 640px; margin: 0 auto; padding: 24px 16px; }
+
+#drop {
+  padding: 32px 16px;
+  text-align: center;
+  background: var(--panel);
+  border: 2px dashed var(--border);
+  border-radius: 12px;
+  transition: border-color .15s;
+}
+#drop.dragover { border-color: var(--accent); }
+#drop p { margin: 0 0 12px; }
+#drop .lead { font-weight: 600; }
+#drop .hint { color: var(--muted); font-size: .9rem; }
+#drop p:last-child { margin: 0; }
+code { font-size: .95em; }
+
+button {
+  font: inherit;
+  padding: 6px 14px;
+  color: var(--fg);
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+}
+button:hover { border-color: var(--accent); }
+#theme { font-size: 1.1rem; line-height: 1; padding: 6px 10px; }
+
+.options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  align-items: center;
+  margin-top: 16px;
+}
+.options label { display: flex; align-items: center; gap: 6px; }
+
+#status { margin: 16px 0 0; color: var(--muted); overflow-wrap: anywhere; }
+#status.error { color: var(--error); }
+
+dialog {
+  width: min(90vw, 640px);
+  max-height: 85vh;
+  padding: 16px 20px;
+  color: var(--fg);
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+dialog::backdrop { background: rgba(0, 0, 0, .5); }
+dialog h2 { margin: 8px 0; font-size: 1rem; }
+dialog pre {
+  max-height: 30vh;
+  margin: 0 0 12px;
+  padding: 8px 12px;
+  overflow: auto;
+  font-size: .85rem;
+  background: var(--bg);
+  border-radius: 6px;
+}
+dialog form { margin: 0; text-align: right; }

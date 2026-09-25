@@ -1,23 +1,146 @@
-# Claude Code Template
+# folder2md
 
-A starter repository preconfigured for [Claude Code](https://claude.com/claude-code): settings, a session-handoff workflow, ignore rules, and LF line endings from the first commit.
+Pack a folder into one Markdown file, and unpack that file back into the folder. A single static page that runs entirely in your browser: no server, no upload, no build step, no dependencies. Installable as a PWA.
 
-## What's included
+Open `index.html` straight from disk, serve it with `python3 -m http.server`, or host it on GitHub Pages (see [Hosting](#hosting-on-github-pages)).
 
-| File | Purpose |
-|------|---------|
-| `.claude/settings.json` | Claude Code settings (`model: opus`, `effortLevel: xhigh`), a permission allowlist, and a `SessionStart` hook that prints `PROGRESS.md` into context. |
-| `.claude/commands/wrapup.md` | `/wrapup` — writes a session handoff to `PROGRESS.md`, then commits. |
-| `PROGRESS.md` | Session handoff maintained by `/wrapup`. |
-| `.gitignore` | OS cruft, Python/Node build artifacts, editor files. |
-| `.gitattributes` | LF line endings; binary file types. |
-| `LICENSE` | Project license. |
+## What it does
+
+Two directions, auto-detected from what you drop or pick:
+
+| You give it | You get |
+|---|---|
+| a folder (recursively), or a single `.zip` | `<folder>.md`: one Markdown file with a tree at the top and every file in a fenced block, text verbatim, binary as base64 |
+| a folder2md `.md` | `<folder>.zip` with the tree restored byte-for-byte; a one-file document downloads that file itself |
+
+The Markdown renders on GitHub, in editors and in chat tools with every source file in a highlighted block, so it is a convenient way to hand a whole project to a reviewer or a model. Drop the same file back on the page to get the folder back.
 
 ## Usage
 
-1. Click **Use this template** on GitHub, or clone the repo.
-2. Delete what you don't need and start building.
-3. Adjust `.claude/settings.json` to taste ([settings docs](https://docs.claude.com/en/docs/claude-code/settings)). Personal overrides go in `.claude/settings.local.json`, which is gitignored.
+1. Open the page.
+2. Drop a folder, a `.zip`, or a folder2md `.md` on the drop zone, or use **Choose folder** / **Choose file**.
+3. The result downloads automatically. The status line shows the mode, the file count, the bytes, and how many files were skipped; errors show in red.
+
+Options:
+
+- **Include dot files and folders** (off by default). Keeps paths with a component starting with `.`, such as `.github/workflows/ci.yml`. It does not override the ignore list.
+- **Add SHA-256 checksums** (off by default, folder2md only). Writes a checksum for every file into the document; restoring then verifies each file.
+- **View ignored files**. Shows the built-in ignore list and the paths skipped in the last run.
+
+Always skipped, checkbox or not: everything matching [`ignores.js`](ignores.js): `.git/`, OS junk like `.DS_Store` and `Thumbs.db`, `__pycache__/`, `node_modules/`, `dist/`, `build/`, `output/`, `*.tmp` and so on. The list uses gitignore-style patterns (`*`, `?`, `[...]`) matched against every path component, file or directory; edit the file to change it. Dot files and folders are skipped too unless the checkbox is on.
+
+A `.zip` sitting inside a folder is packed as an ordinary binary file. Only a `.zip` given on its own is unpacked, and it must be stored or deflated, unencrypted, and under 4 GB (no ZIP64).
+
+Drops with more than one item are rejected: drop one folder, one `.zip`, or one `.md`.
+
+**Privacy.** Nothing leaves your machine. When you pick a folder, the browser asks something like "Upload N files to this site?". That is the browser's standard wording for giving a page read access to the folder; the files are read locally and never sent anywhere.
+
+## Browser support
+
+Current desktop Chrome, Edge, Firefox and Safari. The page needs:
+
+- `DecompressionStream`, for unpacking deflated zips: Chrome/Edge 80, Firefox 113, Safari 16.4.
+- `<dialog>`: Chrome/Edge 37, Firefox 98, Safari 15.4.
+- `webkitGetAsEntry()` and `webkitdirectory`, for folder drops and the folder picker: all of the above. Mobile browsers generally have no folder picker; single files and zips still work there.
+
+Opening `index.html` from disk (`file://`) works in all of them. Offline use and installation need the service worker, which browsers only run over HTTPS or on `localhost`.
+
+## Hosting on GitHub Pages
+
+The repository is the site; there is nothing to build.
+
+1. Push to GitHub.
+2. Settings → Pages → Source: *Deploy from a branch*, branch `main`, folder `/ (root)`.
+3. Open `https://<user>.github.io/<repo>/`.
+
+All URLs in the page are relative, so the same files work from a user site root, from a project subpath, from `localhost` and from `file://`.
+
+**Install as an app.** Served over HTTPS (GitHub Pages) or from `localhost`, the page registers a service worker and can be installed: in desktop Chrome and Edge use the install icon in the address bar; on iOS Safari use Share → *Add to Home Screen*. Once installed it opens offline. To ship a new version, bump `VERSION` in `core.js`: the service worker cache name follows it and old caches are dropped on activation.
+
+Local preview:
+
+```bash
+python3 -m http.server 8000     # then open http://localhost:8000/
+```
+
+## Document format
+
+Line 1 is exactly this (the restore side checks it with the regex `^folder2md-document: format=1 tool=folder2md/\S+ restore=".*"$`):
+
+```
+folder2md-document: format=1 tool=folder2md/0.1.0 restore="drop this file on folder2md"
+```
+
+Then a title, a `## Tree` block, and one section per file, separated by `---`:
+
+````markdown
+
+# folder2md: web
+
+Generated by folder2md 0.1.0. Restore by dropping this file on folder2md.
+
+## Tree
+
+```text
+web/
+├── README.md  (text, 120 bytes)
+├── assets/
+│   └── logo.png  (binary, 41220 bytes)
+└── src/
+    └── app.js  (text, 15703 bytes)
+```
+
+---
+
+## web/README.md
+
+<!-- folder2md {"path":"web/README.md","kind":"text"} -->
+
+```md
+...file bytes, verbatim...
+
+```
+
+---
+
+## web/assets/logo.png
+
+<!-- folder2md {"path":"web/assets/logo.png","kind":"binary","sha256":"<hex64>"} -->
+
+```base64
+iVBORw0KGgo...
+```
+````
+
+Rules:
+
+| Item | Rule |
+|---|---|
+| entries | files only, sorted by path (code-unit order), POSIX separators, every path starts with `<root>/`. Directories are implied by the paths. |
+| root | the folder's name; for a zip, the common first path segment of its entries, else the zip's stem; for a single loose file, the file's stem. |
+| text vs binary | the bytes decode as UTF-8 and contain no NUL byte → text; otherwise binary. No extension logic. |
+| tree | `tree(1)` glyphs (`├── `, `│   `, `└── `, `    `), root line `<root>/`, entries sorted by name at each level, directories suffixed `/`, files suffixed `  (kind, N bytes)`. |
+| marker | one HTML comment per file, on one line: `<!-- folder2md {json} -->` with `path` and `kind`, plus `sha256` when checksums are on. |
+| fence | backticks, length `max(3, longest backtick run in the content + 1)`. Info string: the file extension without the dot, lowercased, empty if none; `base64` for binary. |
+| text body | the raw bytes, then exactly one `\n`, then the closing fence. No decoding, no line-ending changes. |
+| binary body | standard base64 in 76-column lines, then the closing fence. |
+| checksum | SHA-256, hex, of the original bytes. |
+
+Restoring reads the bytes, splits on `\n`, checks line 1, and then for each entry: finds the next marker line, requires the next non-empty line to be a fence, collects lines until the closing fence, joins them with `\n` (text) or base64-decodes their concatenation (binary), and verifies `sha256` when the marker has one. Any failure at any step stops with `md is broken`; nothing is downloaded. One file restores to that file; more restore to a STORE-only zip named `<root>.zip`. [`tests/ref_parse.py`](tests/ref_parse.py) is an independent Python implementation of the restore side.
+
+## Development
+
+The app is `index.html`, `style.css`, `app.js` (DOM), `core.js` (pure functions, also used by `sw.js`), `ignores.js` (the ignore list), `sw.js`, `manifest.webmanifest` and `icons/`. No build step: edit and reload. `VERSION` lives in `core.js` only.
+
+Tests use Python, pytest and Playwright (headless Chromium):
+
+```bash
+uv sync
+uv run playwright install --with-deps chromium    # once per machine
+uv run pytest -q
+```
+
+The harness serves the repo with `python3 -m http.server`, drives the page, and checks the generated Markdown only through what `tests/ref_parse.py` and the page itself get back from it (no golden files). Every `*.zip` and every directory under `tests/fixtures/` is a fixture; regenerate them with `uv run python tests/gen_fixtures.py`. Icons come from `uv run python tests/gen_icons.py`.
 
 ## Development setup (Debian 13)
 
@@ -68,4 +191,4 @@ On Apple Silicon with OrbStack, emulation is built in, so only the second line i
 
 ## License
 
-See [LICENSE](LICENSE).
+AGPL-3.0, see [LICENSE](LICENSE).

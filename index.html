@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>folder2md</title>
+  <meta name="description" content="Pack a folder into one Markdown file and back. Everything runs in your browser; nothing is uploaded.">
+  <meta name="theme-color" content="#f6f7f9">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icons/icon-192.png" type="image/png">
+  <link rel="apple-touch-icon" href="./icons/icon-192.png">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <header>
+    <h1>folder2md <small id="version"></small></h1>
+    <button id="theme" type="button" aria-label="Toggle theme">☾</button>
+  </header>
+
+  <main>
+    <div id="drop">
+      <p class="lead">Drop a folder, a <code>.zip</code>, or a folder2md <code>.md</code> here</p>
+      <p class="hint">folder or .zip → one Markdown file &nbsp;·&nbsp; .md → .zip of the restored tree</p>
+      <p>
+        <button id="choose-dir" type="button">Choose folder</button>
+        <button id="choose-file" type="button">Choose file</button>
+      </p>
+    </div>
+    <input id="pick-dir" type="file" webkitdirectory hidden>
+    <input id="pick-file" type="file" hidden>
+
+    <div class="options">
+      <label><input id="dots" type="checkbox"> Include dot files and folders</label>
+      <label><input id="sha" type="checkbox"> Add SHA-256 checksums</label>
+      <button id="view-ignored" type="button">View ignored files</button>
+    </div>
+
+    <p id="status" role="status" aria-live="polite">Nothing leaves this page: files are read and written locally.</p>
+  </main>
+
+  <dialog id="ignored">
+    <h2>Always ignored</h2>
+    <pre id="ignores-text"></pre>
+    <h2>Skipped in last run</h2>
+    <pre id="skipped">no run yet</pre>
+    <form method="dialog"><button id="close-dialog" type="submit">Close</button></form>
+  </dialog>
+
+  <script src="./ignores.js"></script>
+  <script src="./core.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>

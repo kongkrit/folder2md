@@ -1,3 +1,9 @@
+// ignores.js — always-skipped paths. gitignore syntax: one pattern per line, `#` comments, blank lines ignored.
+// Edit this file directly; core.js parses it at load.
+const IGNORES_TEXT = `
+# VCS
+.git/
+
 # macOS
 .DS_Store
 .AppleDouble
@@ -27,7 +33,6 @@ $RECYCLE.BIN/
 
 # Python / Jupyter
 __pycache__/
-.pytest_cache/
 *.py[cod]
 *.pyo
 .ipynb_checkpoints/
@@ -70,4 +75,4 @@ out/
 output/
 exports/
 *.tmp
-test-results/
+`;

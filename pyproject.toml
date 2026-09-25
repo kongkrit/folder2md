@@ -1,0 +1,16 @@
+# Test harness only. The app itself has no dependencies and no build step.
+[project]
+name = "folder2md"
+version = "0.1.0"
+description = "Pack a folder into one Markdown file and back, entirely in the browser."
+requires-python = ">=3.11"
+dependencies = []
+
+[tool.uv]
+package = false
+
+[dependency-groups]
+dev = ["pytest>=8", "playwright", "pytest-playwright", "pillow"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
