@@ -40,15 +40,16 @@ JUNK = {
     # dotted: kept only when "Include dot files and folders" is on
     "junk/.hidden": b"top-level dot file\n",
     "junk/.config/settings.toml": b"[x]\ny = 1\n",
-    # always ignored, checkbox or not
+    # always ignored, checkbox or not (the expected sets are computed from ignores.js, so this grouping is only a hint)
     "junk/.git/HEAD": b"ref: refs/heads/main\n",
     "junk/.git/objects/ab/cdef": b"\x00\x01",
     "junk/.DS_Store": b"\x00\x00\x00\x01Bud1",
     "junk/__MACOSX/._README.md": b"\x00\x05\x16\x07",
     "junk/src/__pycache__/main.cpython-313.pyc": b"\x00\x00pyc",
     "junk/node_modules/left-pad/index.js": b"module.exports = s => s;\n",
-    "junk/scratch.tmp": b"tmp\n",
     "junk/Thumbs.db": b"\xd0\xcf\x11\xe0",
+    # build-ish names that are NOT in ignores.txt, so they must be kept
+    "junk/scratch.tmp": b"tmp\n",
     "junk/dist/bundle.js": b"!function(){}();\n",
     "junk/output/result.csv": b"a,b\n",
 }

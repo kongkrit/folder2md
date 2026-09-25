@@ -27,7 +27,7 @@ Options:
 - **Add SHA-256 checksums** (off by default, folder2md only). Writes a checksum for every file into the document; restoring then verifies each file.
 - **View ignored files**. Shows the built-in ignore list and the paths skipped in the last run.
 
-Always skipped, checkbox or not: everything matching [`ignores.js`](ignores.js): `.git/`, OS junk like `.DS_Store` and `Thumbs.db`, `__pycache__/`, `node_modules/`, `dist/`, `build/`, `output/`, `*.tmp` and so on. The list uses gitignore-style patterns (`*`, `?`, `[...]`) matched against every path component, file or directory; edit the file to change it. Dot files and folders are skipped too unless the checkbox is on.
+Always skipped, checkbox or not: everything matching [`ignores.js`](ignores.js): `.git/`, OS junk like `.DS_Store`, `__MACOSX/` and `Thumbs.db`, `__pycache__/`, `.venv/`, `node_modules/`, `.next/`, `.cache/`, editor files like `.idea/` and `*.swp`. The list is [`ignores.txt`](ignores.txt) (gitignore-style patterns `*`, `?`, `[...]`, matched against every path component, file or directory) wrapped as a script so it loads from `file://`; edit the txt and run `uv run python tests/gen_ignores.py`. Dot files and folders are skipped too unless the checkbox is on.
 
 A `.zip` sitting inside a folder is packed as an ordinary binary file. Only a `.zip` given on its own is unpacked, and it must be stored or deflated, unencrypted, and under 4 GB (no ZIP64).
 
@@ -130,7 +130,7 @@ Restoring reads the bytes, splits on `\n`, checks line 1, and then for each entr
 
 ## Development
 
-The app is `index.html`, `style.css`, `app.js` (DOM), `core.js` (pure functions, also used by `sw.js`), `ignores.js` (the ignore list), `sw.js`, `manifest.webmanifest` and `icons/`. No build step: edit and reload. `VERSION` lives in `core.js` only.
+The app is `index.html`, `style.css`, `app.js` (DOM), `core.js` (pure functions, also used by `sw.js`), `ignores.js` (generated from `ignores.txt`), `sw.js`, `manifest.webmanifest` and `icons/`. No build step: edit and reload. `VERSION` lives in `core.js` only.
 
 Tests use Python, pytest and Playwright (headless Chromium):
 
