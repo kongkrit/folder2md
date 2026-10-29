@@ -152,7 +152,7 @@ sudo apt install -y git gh python3 python3-venv python3-pip python3-dev build-es
 
 `python3-dev` and `build-essential` are only needed for Python packages built from source.
 
-`uv` is not packaged for Debian; install it with the standalone installer (needs `curl` from above). It puts `uv` and `uvx` in `~/.local/bin`, which Debian's default `~/.profile` adds to `PATH` on next login:
+`uv` is not packaged for Debian; install it with the standalone installer (needs `curl` from above; [official instructions](https://docs.astral.sh/uv/getting-started/installation/)). It puts `uv` and `uvx` in `~/.local/bin`, which Debian's default `~/.profile` adds to `PATH` on next login:
 
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
