@@ -57,8 +57,7 @@ out/
 .RData
 .Rproj.user/
 
-# Editor / IDE
-.vscode/settings.json
+# Editor / IDE (.vscode/settings.json is tracked: project settings only, personal ones go in VS Code user settings)
 .idea/
 *.swp
 *.swo

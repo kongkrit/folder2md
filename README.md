@@ -64,6 +64,8 @@ Local preview:
 python3 -m http.server 8000     # then open http://localhost:8000/
 ```
 
+In VS Code, the Live Preview extension works too, also over VS Code Remote: `.vscode/settings.json` makes it use its own preview panel instead of the integrated browser, which cannot reach a remote server.
+
 ## Document format
 
 Line 1 is exactly this (the restore side checks it with the regex `^folder2md-document: format=1 tool=folder2md/\S+ restore=".*"$`):

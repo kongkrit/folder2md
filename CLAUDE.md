@@ -17,6 +17,7 @@ Guidance for Claude Code in this repository.
 - `pyproject.toml`, `uv.lock` — test harness only; the app has no dependencies.
 - `.claude/settings.json` — committed settings (`model: opus`, `effortLevel: xhigh`), permission allowlist, and a `SessionStart` hook that prints `PROGRESS.md` into context. Personal overrides go in the gitignored `.claude/settings.local.json`, never here.
 - `.claude/commands/wrapup.md` — `/wrapup`: writes a session handoff to `PROGRESS.md`, then commits.
+- `.vscode/settings.json` — committed VS Code settings: `livePreview.useIntegratedBrowser: false`, because the Live Preview extension's default opens `http://127.0.0.1:3000` in VS Code's integrated browser, which runs on the local side and cannot reach the server over VS Code Remote; its own preview panel goes through port forwarding. Personal settings go in VS Code user settings, never here.
 - `PROGRESS.md` — session handoff maintained by `/wrapup`.
 - `.gitignore`, `.gitattributes` — ignore rules; LF line endings and binary file types.
 - `LICENSE` — AGPL-3.0.
