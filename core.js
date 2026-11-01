@@ -3,7 +3,7 @@
 (function (root) {
   "use strict";
 
-  const VERSION = "0.1.0";
+  const VERSION = "0.1.1";
   const TOOL = "folder2md/" + VERSION;
   const MAGIC_RE = /^folder2md-document: format=1 tool=folder2md\/\S+ restore=".*"$/;
   const MAGIC_LINE = `folder2md-document: format=1 tool=${TOOL} restore="drop this file on folder2md"`;

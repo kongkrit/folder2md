@@ -15,7 +15,7 @@ from pathlib import Path
 
 import pytest
 from PIL import Image
-from playwright.sync_api import Page, expect
+from playwright.sync_api import Browser, Page, expect
 
 import ref_parse
 
@@ -23,6 +23,8 @@ ROOT = Path(__file__).resolve().parents[1]
 FIXTURES = Path(__file__).resolve().parent / "fixtures"
 IGNORES = ref_parse.load_ignores((ROOT / "ignores.js").read_text(encoding="utf-8"))
 MAGIC_RE = re.compile(rb'^folder2md-document: format=1 tool=folder2md/\S+ restore=".*"$')
+SAFARI_UA = ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 "
+             "(KHTML, like Gecko) Version/18.0 Safari/605.1.15")
 
 ZIPS = sorted(p.stem for p in FIXTURES.glob("*.zip")) if FIXTURES.is_dir() else []
 DIRS = sorted(p.name for p in FIXTURES.iterdir() if p.is_dir()) if FIXTURES.is_dir() else []
@@ -330,6 +332,31 @@ def test_theme_toggle_persists(page: Page, site: str):
     assert page.evaluate("localStorage.getItem('theme')") == first
     page.locator("#theme").click()
     expect(html).to_have_attribute("data-theme", "dark" if first == "light" else "light")
+
+
+def test_safari_dot_note(page: Page, browser: Browser, site: str):
+    """WebKit drops dot files from folders: the note shows there only, and only while the checkbox is on."""
+    page.goto(site)
+    page.locator("#dots").set_checked(True)
+    expect(page.locator("#dots-note")).to_be_hidden()
+
+    context = browser.new_context(user_agent=SAFARI_UA)
+    try:
+        safari = context.new_page()
+        errors = []
+        safari.on("pageerror", lambda e: errors.append(str(e)))
+        safari.goto(site)
+        dots, note = safari.locator("#dots"), safari.locator("#dots-note")
+        expect(note).to_be_hidden()
+        dots.set_checked(True)
+        expect(note).to_be_visible()
+        expect(dots).to_be_enabled()
+        expect(dots).to_have_attribute("aria-describedby", "dots-note")
+        dots.set_checked(False)
+        expect(note).to_be_hidden()
+        assert not errors, errors
+    finally:
+        context.close()
 
 
 def test_file_protocol(page: Page, tmp_path: Path):

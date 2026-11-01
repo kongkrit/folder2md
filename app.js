@@ -8,6 +8,7 @@
   const pickDir = $("pick-dir");
   const pickFile = $("pick-file");
   const dots = $("dots");
+  const dotsNote = $("dots-note");
   const sha = $("sha");
   const status = $("status");
   const dialog = $("ignored");
@@ -67,6 +68,14 @@
     pickFile.value = "";
     run(files);
   });
+
+  // ---------- Safari: folders arrive without their dot files ----------
+  // WebKit (Safari, every iOS browser) leaves names starting with "." out of dropped and picked folders; zips keep them.
+  const webkitOnly = /AppleWebKit\//.test(navigator.userAgent) && !/Chrome\//.test(navigator.userAgent);
+  if (webkitOnly) dots.setAttribute("aria-describedby", "dots-note");
+  const paintDotsNote = () => { dotsNote.hidden = !(webkitOnly && dots.checked); };
+  dots.addEventListener("change", paintDotsNote);
+  paintDotsNote();
 
   for (const type of ["dragenter", "dragover"]) {
     drop.addEventListener(type, (e) => { e.preventDefault(); drop.classList.add("dragover"); });

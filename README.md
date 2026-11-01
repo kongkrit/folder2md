@@ -42,6 +42,7 @@ Current desktop Chrome, Edge, Firefox and Safari. The page needs:
 - `DecompressionStream`, for unpacking deflated zips: Chrome/Edge 80, Firefox 113, Safari 16.4.
 - `<dialog>`: Chrome/Edge 37, Firefox 98, Safari 15.4.
 - `webkitGetAsEntry()` and `webkitdirectory`, for folder drops and the folder picker: all of the above. Mobile browsers generally have no folder picker; single files and zips still work there.
+- Dot files in folders: Safari, and every iOS browser since they all run WebKit, leaves names starting with `.` out of a dropped or picked folder before the page sees it, so *Include dot files and folders* cannot bring them back. The page says so under the checkbox. Zip the folder and drop the zip instead: a zip keeps its dot files, and the checkbox applies to them as usual.
 
 Opening `index.html` from disk (`file://`) works in all of them. Offline use and installation need the service worker, which browsers only run over HTTPS or on `localhost`.
 
