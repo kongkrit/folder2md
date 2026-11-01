@@ -16,9 +16,9 @@ Guidance for Claude Code in this repository.
 - `tests/test_e2e.py` — Playwright (Python) harness; `tests/ref_parse.py` — independent reference parser and ignore matcher; `tests/fixtures/` — every `*.zip` and every directory is a fixture (`junk.zip` holds the ignorable junk that cannot live in git as plain files); `tests/gen_ignores.py`, `tests/gen_fixtures.py`, `tests/gen_icons.py` — one-off generators.
 - `pyproject.toml`, `uv.lock` — test harness only; the app has no dependencies.
 - `.claude/settings.json` — committed settings (`model: opus`, `effortLevel: xhigh`), permission allowlist, and a `SessionStart` hook that prints `PROGRESS.md` into context. Personal overrides go in the gitignored `.claude/settings.local.json`, never here.
-- `.claude/commands/wrapup.md` — `/wrapup`: writes a session handoff to `PROGRESS.md`, then commits.
+- `.claude/commands/wrapup.md` — `/wrapup`: rewrites `PROGRESS.md` as a handoff for the work since the previous one (base: the last commit that touched it), then commits.
 - `.vscode/settings.json` — committed VS Code settings: `livePreview.useIntegratedBrowser: false`, because the Live Preview extension's default opens `http://127.0.0.1:3000` in VS Code's integrated browser, which runs on the local side and cannot reach the server over VS Code Remote; its own preview panel goes through port forwarding. Personal settings go in VS Code user settings, never here.
-- `PROGRESS.md` — session handoff maintained by `/wrapup`.
+- `PROGRESS.md` — latest session handoff only, maintained by `/wrapup`; earlier ones: `git log -p -- PROGRESS.md`.
 - `.gitignore`, `.gitattributes` — ignore rules; LF line endings and binary file types.
 - `LICENSE` — AGPL-3.0.
 
